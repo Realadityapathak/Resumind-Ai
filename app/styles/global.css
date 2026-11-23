@@ -1,0 +1,723 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ------------------------------------------------------------------
+   The Well-Kept Board
+   Paper, ink, one cobalt accent. Hairline rules, square corners, no
+   resting shadows. Type does the decorating.
+------------------------------------------------------------------- */
+
+@theme {
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --color-paper: #f4f1e8;
+  --color-surface: #fbf9f3;
+  --color-surface-2: #ede9de;
+  --color-ink: #171611;
+  --color-ink-2: #444138;
+  --color-ink-3: #6d685c;
+  --color-ink-4: #989183;
+  --color-rule: #d8d2c3;
+  --color-rule-strong: #b8b09e;
+  --color-cobalt: #1f3ecf;
+  --color-cobalt-deep: #172fa3;
+  --color-cobalt-wash: #e8ebfa;
+  --color-forest: #2f6249;
+  --color-ochre: #8a5c17;
+  --color-rust: #97332b;
+
+  /* Badge surfaces and their paired text colours. */
+  --color-badge-green: #dfe9df;
+  --color-badge-red: #f2ddd9;
+  --color-badge-yellow: #f0e5c9;
+  --color-badge-green-text: #295440;
+  --color-badge-red-text: #7e2a23;
+  --color-badge-yellow-text: #725016;
+
+  /* Test-pinned utility colours, remapped to the board palette. */
+  --color-blue-50: #e8ebfa;
+  --color-blue-100: #dde2f7;
+  --color-blue-200: #c7d0f1;
+  --color-blue-300: #9fadde;
+  --color-blue-500: #3150d8;
+  --color-blue-600: #1f3ecf;
+  --color-blue-700: #172fa3;
+
+  --color-indigo-50: #e8ebfa;
+  --color-indigo-100: #dde2f7;
+  --color-indigo-200: #c7d0f1;
+  --color-indigo-600: #1f3ecf;
+  --color-indigo-700: #172fa3;
+
+  --color-green-50: #e7eee6;
+  --color-green-100: #dfe9df;
+  --color-green-200: #c5d6c5;
+  --color-green-600: #2f6249;
+  --color-green-700: #295440;
+  --color-green-800: #224735;
+  --color-green-900: #1b392b;
+
+  --color-yellow-50: #f5edda;
+  --color-yellow-100: #f0e5c9;
+  --color-yellow-200: #e5d5ab;
+  --color-yellow-600: #8a5c17;
+  --color-yellow-700: #725016;
+
+  --color-red-50: #f7e8e5;
+  --color-red-100: #f2ddd9;
+  --color-red-200: #e8c7c1;
+  --color-red-300: #c4776b;
+  --color-red-400: #b5675b;
+  --color-red-500: #a63c33;
+  --color-red-600: #97332b;
+  --color-red-700: #7e2a23;
+  --color-red-800: #6b251f;
+  --color-red-900: #591f1a;
+
+  --color-emerald-50: #e7eee6;
+  --color-emerald-100: #dfe9df;
+  --color-emerald-200: #c5d6c5;
+  --color-emerald-400: #4f8a6c;
+  --color-emerald-500: #2f6249;
+  --color-emerald-600: #2f6249;
+  --color-emerald-700: #295440;
+  --color-emerald-800: #224735;
+
+  --color-amber-50: #f5edda;
+  --color-amber-100: #f0e5c9;
+  --color-amber-200: #e5d5ab;
+  --color-amber-400: #b48a3c;
+  --color-amber-500: #9a6a1d;
+  --color-amber-600: #8a5c17;
+  --color-amber-700: #725016;
+  --color-amber-800: #614312;
+  --color-amber-900: #4e360e;
+  --color-amber-950: #38270a;
+
+  --color-purple-50: #e8ebfa;
+  --color-purple-100: #dde2f7;
+  --color-purple-200: #c7d0f1;
+  --color-purple-600: #1f3ecf;
+  --color-purple-700: #172fa3;
+
+  --color-slate-50: #f4f1e8;
+  --color-slate-100: #ede9de;
+  --color-slate-200: #e1dccd;
+  --color-slate-300: #cfc8b7;
+  --color-slate-400: #989183;
+  --color-slate-500: #6d685c;
+  --color-slate-600: #575248;
+  --color-slate-700: #444138;
+  --color-slate-800: #2b2923;
+  --color-slate-900: #171611;
+
+  --color-gray-50: #f0ece2;
+  --color-gray-100: #e8e3d7;
+  --color-gray-200: #d8d2c3;
+  --color-gray-300: #b8b09e;
+  --color-gray-400: #989183;
+  --color-gray-500: #6d685c;
+  --color-gray-600: #575248;
+  --color-gray-700: #444138;
+  --color-gray-800: #2b2923;
+  --color-gray-900: #171611;
+
+  /* Named animations; each is transform/opacity only. */
+  --animate-fadeIn: fadeIn 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-menuPop: menuPop 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-messageIn: messageIn 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-swapIn: swapIn 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-drawerIn: drawerIn 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-backdropIn: backdropIn 260ms ease;
+  --animate-pageIn: pageIn 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+  --t-press: 140ms;
+  --t-hover: 180ms;
+  --t-ui: 240ms;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  @apply bg-paper text-ink;
+}
+
+body {
+  font-feature-settings: "ss01" 1, "cv11" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--color-cobalt);
+  color: var(--color-paper);
+}
+
+/* Scrollbars stay present but read as hairlines on the board. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-rule-strong) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--color-rule-strong);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-4);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+main {
+  @apply min-h-screen;
+}
+
+h1 {
+  @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-ink leading-[1.02] tracking-[-1px] sm:tracking-[-2px] font-semibold;
+}
+
+h2 {
+  @apply text-xl sm:text-2xl md:text-3xl text-ink-2 leading-tight tracking-[-0.02em] font-semibold;
+}
+
+h3 {
+  @apply text-lg text-ink font-semibold leading-snug;
+}
+
+label {
+  @apply text-[13px] font-medium text-ink-2;
+}
+
+input,
+textarea,
+select {
+  @apply w-full bg-surface text-ink text-[15px] rounded-[3px] border border-rule px-3.5 py-3 transition-colors placeholder:text-ink-4;
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+  @apply border-rule-strong;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  @apply outline-none border-cobalt;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-cobalt) 14%, transparent);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  @apply h-3.5 w-3.5 cursor-pointer border-0 bg-transparent p-0 accent-cobalt;
+}
+
+input[type="file"] {
+  @apply border-0 bg-transparent p-0;
+}
+
+form {
+  @apply flex flex-col items-start gap-6 w-full;
+}
+
+/* The Copilot composer sits inline despite the base form stack. */
+.composer-form {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-cobalt);
+  outline-offset: 2px;
+}
+
+/* Buttons give a little under the hand; links answer the pointer. */
+.primary-button,
+.secondary-button,
+.auth-button,
+.back-button {
+  transition:
+    color var(--t-hover) ease,
+    background-color var(--t-hover) ease,
+    border-color var(--t-hover) ease,
+    transform var(--t-press) var(--ease-out);
+}
+
+.primary-button:not(:disabled):active,
+.secondary-button:not(:disabled):active,
+.auth-button:not(:disabled):active,
+.back-button:not(:disabled):active {
+  transform: translateY(1px) scale(0.995);
+}
+
+:where(button:not(:disabled)):active {
+  transform: translateY(1px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .primary-button:not(:disabled):hover,
+  .secondary-button:not(:disabled):hover,
+  .auth-button:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* Footer links get an ink underline that draws in from the left. */
+.footer-link {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition:
+    color var(--t-hover) ease,
+    text-decoration-color var(--t-hover) ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footer-link:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+.hero-word {
+  display: inline-block;
+}
+
+/* The inactive navbar links grow the same rule the active one keeps. */
+.nav-link-underline {
+  position: relative;
+}
+
+.nav-link-underline::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -6px;
+  left: 0;
+  height: 1px;
+  background: var(--color-cobalt);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--t-ui) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-link-underline:hover::after {
+    transform: scaleX(1);
+  }
+}
+
+/* Scroll reveals are armed from React only after the observer exists, and
+   only while motion is welcome. Without JS, the elements are simply visible. */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal].reveal-armed {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 680ms var(--ease-out) var(--reveal-delay, 0ms),
+      transform 880ms var(--ease-expo) var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+
+  .js [data-reveal="soft"].reveal-armed {
+    transform: translateY(12px);
+  }
+
+  .js [data-reveal="fade"].reveal-armed {
+    transform: none;
+  }
+
+  .js [data-reveal="scale"].reveal-armed {
+    transform: scale(0.985);
+  }
+
+  .js [data-reveal].reveal-armed.is-in {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+
+  /* A scoring rule draws itself once its ledger arrives. */
+  .js [data-reveal].reveal-armed .meter-fill {
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  .js [data-reveal].reveal-armed.is-in .meter-fill {
+    transform: scaleX(1);
+    transition: transform 920ms var(--ease-expo) calc(var(--reveal-delay, 0ms) + 140ms);
+  }
+
+  /* Figures settle a beat after their ledger cell. */
+  .js [data-reveal].reveal-armed .figure-rise {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 560ms var(--ease-out) calc(var(--reveal-delay, 0ms) + 120ms),
+      transform 760ms var(--ease-expo) calc(var(--reveal-delay, 0ms) + 120ms);
+  }
+
+  .js [data-reveal].reveal-armed.is-in .figure-rise {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Landing hero load sequence: words arrive in reading order, the sheet opens. */
+  .js .hero-word {
+    animation: heroWord 760ms var(--ease-expo) calc(120ms + var(--word, 0) * 55ms) forwards;
+    opacity: 0;
+    transform: translateY(0.42em);
+  }
+
+  .js .hero-rise {
+    animation: heroRise 620ms var(--ease-out) var(--delay, 0ms) forwards;
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  .js .hero-sheet {
+    animation: heroSheet 950ms var(--ease-in-out) 220ms forwards;
+    clip-path: inset(0 0 100% 0);
+  }
+
+  .js .hero-sheet-media img {
+    animation: heroSettle 1100ms var(--ease-expo) 220ms forwards;
+    transform: scale(1.07);
+  }
+
+  /* Menu and drawer entrances. */
+  .js .menu-pop {
+    animation: menuPop 200ms var(--ease-out) both;
+    transform-origin: top right;
+  }
+
+  .js .drawer-in {
+    animation: drawerIn 360ms var(--ease-out) both;
+  }
+
+  .js .backdrop-in {
+    animation: backdropIn 260ms ease both;
+  }
+
+  /* A page or panel change reads as one sheet replacing another. */
+  .js .page-in {
+    animation: pageIn 280ms var(--ease-out) both;
+  }
+
+  .js .score-swap {
+    animation: swapIn 300ms var(--ease-out) both;
+  }
+
+  .js .score-stagger > * {
+    animation: messageIn 320ms var(--ease-out) both;
+  }
+
+  .js .score-stagger > *:nth-child(2) {
+    animation-delay: 60ms;
+  }
+
+  .js .score-stagger > *:nth-child(3) {
+    animation-delay: 120ms;
+  }
+
+  .js .message-in {
+    animation: messageIn 320ms var(--ease-out) both;
+  }
+
+  .js .pdf-page-in {
+    animation: pageIn 260ms var(--ease-out) both;
+  }
+
+  .js .pdf-fullscreen-in {
+    animation: fadeIn 240ms var(--ease-out) both;
+  }
+
+  /* Scores redraw rather than snap when fresh data replaces old. */
+  .score-arc {
+    transition: stroke-dashoffset 700ms var(--ease-out);
+  }
+}
+
+/* At the 1024 rail width the seven labels need the room the icons take. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .tab-icon {
+    display: none;
+  }
+}
+
+/* Auth headings must not inherit the marketing display scale. */
+.auth-title {
+  font-size: 1.5rem;
+  line-height: 1.16;
+  letter-spacing: -0.025em;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+@layer components {
+  .primary-button {
+    @apply inline-flex items-center justify-center gap-2 bg-cobalt text-paper border border-cobalt rounded-[3px] px-5 py-2.5 sm:py-3 text-sm font-semibold cursor-pointer transition-colors duration-200 hover:bg-cobalt-deep hover:border-cobalt-deep disabled:opacity-55 disabled:cursor-not-allowed;
+  }
+
+  .secondary-button {
+    @apply inline-flex items-center justify-center gap-2 bg-transparent text-ink border border-rule-strong rounded-[3px] px-5 py-2.5 sm:py-3 text-sm font-semibold cursor-pointer transition-colors duration-200 hover:bg-surface-2 hover:border-ink-4;
+  }
+
+  .back-button {
+    @apply inline-flex items-center gap-2 border border-rule bg-surface rounded-[3px] px-3 py-2 text-sm text-ink-2 transition-colors hover:border-rule-strong hover:text-ink;
+  }
+
+  .auth-button {
+    @apply inline-flex w-full items-center justify-center gap-2 bg-cobalt text-paper rounded-[3px] px-6 py-3.5 text-sm font-semibold cursor-pointer border border-cobalt transition-colors duration-200 hover:bg-cobalt-deep hover:border-cobalt-deep;
+  }
+
+  .main-section {
+    @apply flex flex-col items-center gap-8 pt-6 sm:pt-12 mx-4 sm:mx-8 md:mx-15 pb-5;
+  }
+
+  .navbar {
+    @apply flex flex-row justify-between items-center bg-paper rounded-none p-3 sm:p-4 w-full px-4 sm:px-6 md:px-10 max-w-[1200px] mx-auto;
+  }
+
+  .form-div {
+    @apply flex flex-col gap-2 w-full items-start;
+  }
+
+  .uploader-drag-area {
+    @apply relative p-8 text-center transition-colors duration-200 cursor-pointer bg-surface rounded-[3px] min-h-[208px];
+  }
+
+  .uploader-selected-file {
+    @apply flex items-center justify-between gap-4 p-3 bg-surface-2 rounded-[3px];
+  }
+
+  /* A small set of recurring board primitives. */
+  .eyebrow {
+    @apply text-[13px] font-semibold text-cobalt;
+  }
+
+  .ledger-label {
+    @apply text-[12px] font-medium text-ink-3;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes menuPop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes swapIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drawerIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroWord {
+  from {
+    opacity: 0;
+    transform: translateY(0.42em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroRise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroSheet {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes heroSettle {
+  from {
+    transform: scale(1.07);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes footerMark {
+  from {
+    transform: translateY(6%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes scanLine {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(219px);
+    opacity: 0;
+  }
+}
+
+/* The oversized footer mark settles as it enters; six percent of travel. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .js .footer-mark {
+      animation: footerMark linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media print {
+  nav,
+  aside,
+  header,
+  .no-print,
+  section[aria-label="Document Preview"] {
+    display: none !important;
+  }
+
+  #printable-cover-letter {
+    display: block !important;
+    font-family: serif;
+    font-size: 12pt;
+    line-height: 1.6;
+    color: #000;
+    padding: 1in;
+  }
+}

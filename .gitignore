@@ -1,6 +1,52 @@
-.DS_Store
-/node_modules/
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
 
-# React Router
+# Testing & Coverage
+/coverage/
+*.lcov
+.vitest/
+
+# React Router & Production Builds
 /.react-router/
 /build/
+/dist/
+.vite/
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+
+# Agent Metadata & Coordination Transcripts
+.agents/
+.serena/
+.superpowers/
+graphify-out/
+
+# Browser Capture Artifacts
+.playwright-mcp/
+
+# Temporary Captures & Personal Documents
+/temp/
+*.pdf
+*.webm
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS & Editor Metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
