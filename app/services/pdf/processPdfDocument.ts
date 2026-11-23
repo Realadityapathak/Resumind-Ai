@@ -91,7 +91,7 @@ export async function processPdfDocument(
     options: PdfProcessOptions = {}
 ): Promise<PdfProcessResult> {
     const scale = options.scale ?? 2.0;
-    const maxPages = options.maxPages ?? Infinity;
+    const maxPages = options.maxPages ?? DEFAULT_MAX_PAGES;
 
     let pdf: any = null;
     const createdUrls: string[] = [];

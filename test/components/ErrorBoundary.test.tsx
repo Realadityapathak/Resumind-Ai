@@ -104,6 +104,21 @@ describe("ErrorBoundary Component (app/root.tsx)", () => {
     expect(screen.getByText("Custom fatal string payload")).toBeInTheDocument();
   });
 
+  it("extracts name and message from custom error-like objects", () => {
+    render(
+      <MemoryRouter>
+        <ErrorBoundary
+          error={{ name: "PuterAuthError", message: "Puter session token rejected or expired." }}
+          params={{}}
+        />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("PuterAuthError")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Something Went Wrong" })).toBeInTheDocument();
+    expect(screen.getByText("Puter session token rejected or expired.")).toBeInTheDocument();
+  });
+
   it("triggers window.location.reload when 'Reload Application' is clicked", () => {
     const jsError = new Error("Render explosion");
 

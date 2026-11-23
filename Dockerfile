@@ -1,19 +1,19 @@
 # Development dependencies stage
 FROM node:24-alpine AS development-dependencies-env
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm ci
 
 # Production dependencies stage (omitting devDependencies)
 FROM node:24-alpine AS production-dependencies-env
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm ci --omit=dev
 
 # Build stage
 FROM node:24-alpine AS build-env
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package*.json ./
 COPY --from=development-dependencies-env /app/node_modules ./node_modules
 COPY . ./
 RUN npm run build
@@ -26,9 +26,10 @@ ENV NODE_ENV=production
 ENV PORT=3000
 
 # Copy application artifacts with non-root node ownership
-COPY --chown=node:node package.json package-lock.json ./
+COPY --chown=node:node package*.json ./
 COPY --chown=node:node --from=production-dependencies-env /app/node_modules ./node_modules
 COPY --chown=node:node --from=build-env /app/build ./build
+COPY --chown=node:node --from=build-env /app/public ./public
 
 # Non-root user execution
 USER node

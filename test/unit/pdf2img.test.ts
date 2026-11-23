@@ -175,6 +175,56 @@ describe("PDF Processing Engine (app/services/pdf/processPdfDocument.ts)", () =>
             expect(result.fullText).toContain("Page 15 academic content");
         });
 
+        it("defaults maxPages to 10 (DEFAULT_MAX_PAGES) when options are omitted", async () => {
+            const pages = Array.from({ length: 15 }, (_, i) => ({
+                textItems: [{ str: `Page ${i + 1} academic content paragraph for testing.`, hasEOL: true }],
+            }));
+            const mockLib = createMockPdfLib(pages);
+            _setPdfJsLib(mockLib);
+
+            const file = new File(["15-page-cv"], "large_cv.pdf", { type: "application/pdf" });
+            const result = await processPdfDocument(file);
+
+            expect(result.pageCount).toBe(15);
+            expect(result.pages.length).toBe(10);
+            expect(result.isTruncated).toBe(true);
+            expect(result.pagesText.length).toBe(15);
+            expect(result.fullText).toContain("Page 1 academic content");
+            expect(result.fullText).toContain("Page 10 academic content");
+            expect(result.fullText).toContain("Page 15 academic content");
+        });
+
+        it("defaults maxPages to 10 when only scale is provided in options", async () => {
+            const pages = Array.from({ length: 12 }, (_, i) => ({
+                textItems: [{ str: `Page ${i + 1} test content.`, hasEOL: true }],
+            }));
+            const mockLib = createMockPdfLib(pages);
+            _setPdfJsLib(mockLib);
+
+            const file = new File(["12-page-cv"], "cv_12.pdf", { type: "application/pdf" });
+            const result = await processPdfDocument(file, { scale: 1.5 });
+
+            expect(result.pageCount).toBe(12);
+            expect(result.pages.length).toBe(10);
+            expect(result.isTruncated).toBe(true);
+            expect(result.pagesText.length).toBe(12);
+        });
+
+        it("renders all pages when maxPages is explicitly set to Infinity", async () => {
+            const pages = Array.from({ length: 12 }, (_, i) => ({
+                textItems: [{ str: `Page ${i + 1} test content.`, hasEOL: true }],
+            }));
+            const mockLib = createMockPdfLib(pages);
+            _setPdfJsLib(mockLib);
+
+            const file = new File(["12-page-cv"], "cv_12.pdf", { type: "application/pdf" });
+            const result = await processPdfDocument(file, { maxPages: Infinity });
+
+            expect(result.pageCount).toBe(12);
+            expect(result.pages.length).toBe(12);
+            expect(result.isTruncated).toBe(false);
+        });
+
         it("handles PDF loading failures gracefully and returns error object", async () => {
             const failingLib = {
                 getDocument: vi.fn(() => ({
@@ -275,7 +325,7 @@ describe("PDF Processing Engine (app/services/pdf/processPdfDocument.ts)", () =>
             const file = new File(["15-page-binary-mock"], "senior-executive-resume.pdf", {
                 type: "application/pdf",
             });
-            const result = await processPdfDocument(file, { scale: 2.0 });
+            const result = await processPdfDocument(file, { scale: 2.0, maxPages: 15 });
 
             expect(result.pageCount).toBe(15);
             expect(result.pages.length).toBe(15);
@@ -545,7 +595,7 @@ describe("PDF Processing Engine (app/services/pdf/processPdfDocument.ts)", () =>
             _setPdfJsLib(mockLib);
 
             const file = new File(["massive-pdf"], "huge_cv.pdf", { type: "application/pdf" });
-            const result = await processPdfDocument(file, { scale: 2.0 });
+            const result = await processPdfDocument(file, { scale: 2.0, maxPages: 25 });
 
             expect(result.pageCount).toBe(25);
             expect(result.pages).toHaveLength(25);

@@ -91,6 +91,11 @@ export function ErrorBoundary({ error }: { error: unknown; params?: Record<strin
     }
   } else if (typeof error === "string") {
     details = error;
+  } else if (error && typeof error === "object" && "message" in error && typeof (error as any).message === "string") {
+    details = (error as any).message;
+    if ("name" in error && typeof (error as any).name === "string") {
+      statusBadge = (error as any).name;
+    }
   }
 
   const handleReload = () => {
