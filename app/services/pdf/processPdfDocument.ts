@@ -20,11 +20,12 @@ export interface PdfProcessResult {
     pagesText: string[];
     isScanned: boolean;
     error?: string;
+    isTruncated?: boolean;
 }
 
 export interface PdfProcessOptions {
     scale?: number;     // Default: 2.0 (high-DPI, memory-efficient)
-    maxPages?: number;  // Optional limit on pages to render
+    maxPages?: number;  // Limit on pages to render visual canvas previews (default: 10)
 }
 
 let pdfjsLib: any = null;
@@ -79,8 +80,11 @@ export function extractTextFromContent(items: any[]): string {
         .trim();
 }
 
+export const DEFAULT_MAX_PAGES = 10;
+
 /**
- * Processes all pages of a PDF: extracts raw text and renders high-DPI canvas preview images.
+ * Processes a PDF document: extracts raw text across all pages and renders high-DPI canvas preview images
+ * up to maxPages (when provided) to guard against browser canvas memory exhaustion (OOM).
  */
 export async function processPdfDocument(
     file: File,
@@ -97,13 +101,14 @@ export async function processPdfDocument(
         const arrayBuffer = await file.arrayBuffer();
         pdf = await lib.getDocument({ data: arrayBuffer }).promise;
         const totalPages = pdf.numPages || 1;
-        const pagesToProcess = Math.min(totalPages, maxPages);
+        const pagesToRender = Math.min(totalPages, maxPages);
 
         const renderedPages: PageRenderResult[] = [];
         const pagesText: string[] = [];
         const baseFileName = file.name.replace(/\.pdf$/i, "");
 
-        for (let pageNum = 1; pageNum <= pagesToProcess; pageNum++) {
+        // Iterate over ALL pages to extract complete text, while constraining canvas rendering to maxPages
+        for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
             const page = await pdf.getPage(pageNum);
 
             try {
@@ -119,40 +124,58 @@ export async function processPdfDocument(
                 }
                 pagesText.push(pageText);
 
-                // 2. Render canvas for visual preview
-                const viewport = page.getViewport({ scale });
-                const canvas = document.createElement("canvas");
-                const context = canvas.getContext("2d");
+                // 2. Render visual canvas preview ONLY up to maxPages to prevent browser OOM crashes
+                if (pageNum <= pagesToRender) {
+                    const viewport = page.getViewport({ scale });
+                    const canvas = document.createElement("canvas");
+                    const context = canvas.getContext("2d");
 
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
 
-                if (context) {
-                    context.imageSmoothingEnabled = true;
-                    context.imageSmoothingQuality = "high";
-                }
-
-                if (typeof page.render === "function") {
-                    const renderTask = page.render({ canvasContext: context!, viewport });
-                    if (renderTask && renderTask.promise) {
-                        await renderTask.promise;
+                    if (context) {
+                        context.imageSmoothingEnabled = true;
+                        context.imageSmoothingQuality = "high";
                     }
-                }
 
-                // 3. Convert canvas to PNG blob and create File object
-                const pageFileResult = await new Promise<PageRenderResult | null>((resolve) => {
-                    if (typeof canvas.toBlob === "function") {
-                        canvas.toBlob(
-                            (blob) => {
-                                if (!blob) {
-                                    // Fallback blob if canvas is blank
-                                    const fallbackBlob = new Blob(["placeholder-page"], { type: "image/png" });
+                    if (typeof page.render === "function") {
+                        const renderTask = page.render({ canvasContext: context!, viewport });
+                        if (renderTask && renderTask.promise) {
+                            await renderTask.promise;
+                        }
+                    }
+
+                    // 3. Convert canvas to PNG blob and create File object
+                    const pageFileResult = await new Promise<PageRenderResult | null>((resolve) => {
+                        if (typeof canvas.toBlob === "function") {
+                            canvas.toBlob(
+                                (blob) => {
+                                    if (!blob) {
+                                        // Fallback blob if canvas is blank
+                                        const fallbackBlob = new Blob(["placeholder-page"], { type: "image/png" });
+                                        const imageFile = new File(
+                                            [fallbackBlob],
+                                            `${baseFileName}_page_${pageNum}.png`,
+                                            { type: "image/png" }
+                                        );
+                                        const url = URL.createObjectURL(fallbackBlob);
+                                        createdUrls.push(url);
+                                        resolve({
+                                            pageNumber: pageNum,
+                                            imageUrl: url,
+                                            file: imageFile,
+                                            width: viewport.width,
+                                            height: viewport.height,
+                                            text: pageText,
+                                        });
+                                        return;
+                                    }
                                     const imageFile = new File(
-                                        [fallbackBlob],
+                                        [blob],
                                         `${baseFileName}_page_${pageNum}.png`,
                                         { type: "image/png" }
                                     );
-                                    const url = URL.createObjectURL(fallbackBlob);
+                                    const url = URL.createObjectURL(blob);
                                     createdUrls.push(url);
                                     resolve({
                                         pageNumber: pageNum,
@@ -162,50 +185,34 @@ export async function processPdfDocument(
                                         height: viewport.height,
                                         text: pageText,
                                     });
-                                    return;
-                                }
-                                const imageFile = new File(
-                                    [blob],
-                                    `${baseFileName}_page_${pageNum}.png`,
-                                    { type: "image/png" }
-                                );
-                                const url = URL.createObjectURL(blob);
-                                createdUrls.push(url);
-                                resolve({
-                                    pageNumber: pageNum,
-                                    imageUrl: url,
-                                    file: imageFile,
-                                    width: viewport.width,
-                                    height: viewport.height,
-                                    text: pageText,
-                                });
-                            },
-                            "image/png",
-                            1.0
-                        );
-                    } else {
-                        // Fallback in headless / jsdom environments where canvas.toBlob isn't implemented
-                        const fallbackBlob = new Blob(["mock-canvas-page"], { type: "image/png" });
-                        const imageFile = new File(
-                            [fallbackBlob],
-                            `${baseFileName}_page_${pageNum}.png`,
-                            { type: "image/png" }
-                        );
-                        const url = URL.createObjectURL(fallbackBlob);
-                        createdUrls.push(url);
-                        resolve({
-                            pageNumber: pageNum,
-                            imageUrl: url,
-                            file: imageFile,
-                            width: viewport.width,
-                            height: viewport.height,
-                            text: pageText,
-                        });
-                    }
-                });
+                                },
+                                "image/png",
+                                1.0
+                            );
+                        } else {
+                            // Fallback in headless / jsdom environments where canvas.toBlob isn't implemented
+                            const fallbackBlob = new Blob(["mock-canvas-page"], { type: "image/png" });
+                            const imageFile = new File(
+                                [fallbackBlob],
+                                `${baseFileName}_page_${pageNum}.png`,
+                                { type: "image/png" }
+                            );
+                            const url = URL.createObjectURL(fallbackBlob);
+                            createdUrls.push(url);
+                            resolve({
+                                pageNumber: pageNum,
+                                imageUrl: url,
+                                file: imageFile,
+                                width: viewport.width,
+                                height: viewport.height,
+                                text: pageText,
+                            });
+                        }
+                    });
 
-                if (pageFileResult) {
-                    renderedPages.push(pageFileResult);
+                    if (pageFileResult) {
+                        renderedPages.push(pageFileResult);
+                    }
                 }
             } finally {
                 if (page && typeof page.cleanup === "function") {
@@ -227,6 +234,7 @@ export async function processPdfDocument(
             fullText,
             pagesText,
             isScanned,
+            isTruncated: totalPages > maxPages,
         };
     } catch (err: any) {
         console.error("PDF processing error:", err);
@@ -244,6 +252,7 @@ export async function processPdfDocument(
             fullText: "",
             pagesText: [],
             isScanned: true,
+            isTruncated: false,
             error: `Failed to process PDF: ${err?.message || err}`,
         };
     } finally {

@@ -71,7 +71,7 @@ const UploadContent = () => {
 
             // Step 2: Multi-page text extraction & preview rendering
             safeSetStatusText("Processing resume pages & extracting text...");
-            pdfResult = await processPdfDocument(file, { scale: 2.0 });
+            pdfResult = await processPdfDocument(file, { scale: 2.0, maxPages: 10 });
 
             if (pdfResult.pages.length === 0 && pdfResult.error) {
                 throw new Error(pdfResult.error);
@@ -105,7 +105,11 @@ const UploadContent = () => {
             }
 
             // Step 4: Upload all rendered page preview images to Puter FS
-            safeSetStatusText(`Uploading ${pdfResult.pages.length} page preview${pdfResult.pages.length > 1 ? "s" : ""}...`);
+            const pageNoun = pdfResult.pages.length === 1 ? "page" : "pages";
+            const previewNote = pdfResult.pageCount > pdfResult.pages.length
+                ? ` (previewing first ${pdfResult.pages.length} of ${pdfResult.pageCount} pages)`
+                : "";
+            safeSetStatusText(`Uploading ${pdfResult.pages.length} ${pageNoun} preview${pdfResult.pages.length > 1 ? "s" : ""}${previewNote}...`);
             const uploadedImagePaths: string[] = [];
             for (const page of pdfResult.pages) {
                 if (page.file) {

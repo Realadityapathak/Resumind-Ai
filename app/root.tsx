@@ -1,5 +1,6 @@
 import {
   isRouteErrorResponse,
+  Link,
   Links,
   Meta,
   Outlet,
@@ -12,6 +13,7 @@ import "./styles/global.css";
 import { useEffect } from "react";
 
 import { usePuterStore } from "~/services/puter/store";
+import Icon from "~/components/ui/Icon";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -61,31 +63,99 @@ export default function App() {
   return <Outlet />;
 }
 
-export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
+export function ErrorBoundary({ error }: { error: unknown; params?: Record<string, string | undefined> }) {
+  let statusBadge = "System Error";
+  let message = "Something Went Wrong";
+  let details = "An unexpected application error occurred while processing your request.";
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
+    if (error.status === 404) {
+      statusBadge = "404 Not Found";
+      message = "Page Not Found";
+      details = "The page you are looking for does not exist or may have been moved.";
+    } else {
+      statusBadge = `HTTP ${error.status}`;
+      message = error.statusText || "Application Error";
+      details =
+        typeof error.data === "string"
+          ? error.data
+          : error.data?.message || error.statusText || details;
+    }
+  } else if (error instanceof Error) {
+    statusBadge = error.name || "Exception";
+    message = "Something Went Wrong";
+    details = error.message || details;
+    if (import.meta.env.DEV) {
+      stack = error.stack;
+    }
+  } else if (typeof error === "string") {
+    details = error;
   }
 
+  const handleReload = () => {
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    }
+  };
+
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
+    <main
+      className="flex min-h-[85vh] items-center justify-center bg-paper px-4 py-12 sm:px-6 lg:px-8"
+      role="alert"
+      aria-live="assertive"
+    >
+      <div className="w-full max-w-lg border border-rule bg-surface p-6 sm:p-8">
+        <div className="flex items-center justify-between">
+          <div className="flex h-10 w-10 items-center justify-center rounded-[3px] border border-red-200 bg-red-50 text-rust">
+            <Icon name="alert" size={20} />
+          </div>
+          <span className="rounded-[3px] border border-rule bg-surface-2 px-2.5 py-1 text-[11px] font-mono font-medium tracking-wide text-ink-3 uppercase">
+            {statusBadge}
+          </span>
+        </div>
+
+        <p className="eyebrow mt-6 text-rust">Resumind Recovery</p>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+          {message}
+        </h1>
+        <p className="mt-3 text-sm leading-relaxed text-ink-3">
+          {details}
+        </p>
+
+        {stack && import.meta.env.DEV && (
+          <details className="mt-5 text-left">
+            <summary className="cursor-pointer text-xs font-medium text-ink-3 hover:text-ink">
+              View error stack trace
+            </summary>
+            <pre className="mt-2 max-h-48 overflow-auto rounded-[3px] border border-rule bg-surface-2 p-3 font-mono text-[11px] leading-tight text-ink-2">
+              <code>{stack}</code>
+            </pre>
+          </details>
+        )}
+
+        <div className="mt-8 flex flex-col gap-2.5 sm:flex-row sm:items-center">
+          <Link
+            to="/dashboard"
+            className="primary-button text-center"
+          >
+            Return to Dashboard
+          </Link>
+          <button
+            type="button"
+            onClick={handleReload}
+            className="secondary-button text-center"
+          >
+            Reload Application
+          </button>
+          <Link
+            to="/"
+            className="secondary-button text-center"
+          >
+            Go to Home
+          </Link>
+        </div>
+      </div>
     </main>
   );
 }

@@ -150,6 +150,29 @@ describe("PDF Processing Engine (app/services/pdf/processPdfDocument.ts)", () =>
             expect(result.pageCount).toBe(3);
             expect(result.pages.length).toBe(1);
             expect(result.pages[0].pageNumber).toBe(1);
+            expect(result.isTruncated).toBe(true);
+            expect(result.fullText).toContain("Page 1 Content");
+            expect(result.fullText).toContain("Page 2 Content");
+            expect(result.fullText).toContain("Page 3 Content");
+        });
+
+        it("enforces maxPages constraint (e.g. DEFAULT_MAX_PAGES = 10) to protect against canvas OOM on large documents", async () => {
+            const pages = Array.from({ length: 15 }, (_, i) => ({
+                textItems: [{ str: `Page ${i + 1} academic content paragraph for testing.`, hasEOL: true }],
+            }));
+            const mockLib = createMockPdfLib(pages);
+            _setPdfJsLib(mockLib);
+
+            const file = new File(["15-page-cv"], "large_cv.pdf", { type: "application/pdf" });
+            const result = await processPdfDocument(file, { maxPages: 10 });
+
+            expect(result.pageCount).toBe(15);
+            expect(result.pages.length).toBe(10);
+            expect(result.isTruncated).toBe(true);
+            // All 15 pages of text are extracted for AI analysis
+            expect(result.fullText).toContain("Page 1 academic content");
+            expect(result.fullText).toContain("Page 10 academic content");
+            expect(result.fullText).toContain("Page 15 academic content");
         });
 
         it("handles PDF loading failures gracefully and returns error object", async () => {
