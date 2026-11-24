@@ -55,8 +55,8 @@ Question Generation Guidelines:
 
 Return ONLY a valid JSON object matching this schema:
 {
-  "roleTitle": "${jobTitle.replace(/"/g, '\\"')}",
-  "companyName": "${companyName.replace(/"/g, '\\"')}",
+  "roleTitle": ${JSON.stringify(jobTitle)},
+  "companyName": ${JSON.stringify(companyName)},
   "questions": [
     {
       "id": "q-1",

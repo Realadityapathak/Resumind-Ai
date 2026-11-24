@@ -69,7 +69,7 @@ Transformation Rules:
 
 Return ONLY a valid JSON object matching this schema:
 {
-  "originalBullet": "${bulletPoint.replace(/"/g, '\\"')}",
+  "originalBullet": ${JSON.stringify(bulletPoint)},
   "critique": "Critique of why the bullet point was weak and what was improved.",
   "variants": [
     {

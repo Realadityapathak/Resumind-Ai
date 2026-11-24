@@ -76,8 +76,8 @@ describe("M4 Challenger 1: Adversarial Stress & Resiliency Test Suite", () => {
             expect(prompt).toContain(xssJd);
             expect(prompt).toContain(xssNotes);
             // Verify quotes in companyName and jobTitle are escaped in the JSON schema template
-            expect(prompt).toContain(`"roleTitle": "${xssJobTitle.replace(/"/g, '\\"')}"`);
-            expect(prompt).toContain(`"companyName": "${xssCompany.replace(/"/g, '\\"')}"`);
+            expect(prompt).toContain(`"roleTitle": ${JSON.stringify(xssJobTitle)}`);
+            expect(prompt).toContain(`"companyName": ${JSON.stringify(xssCompany)}`);
         });
 
         it("handles diverse non-ASCII, CJK, Arabic RTL, accent marks, and emojis gracefully", () => {

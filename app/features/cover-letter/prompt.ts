@@ -74,11 +74,11 @@ Strict Generation Rules:
 
 Return ONLY a valid JSON object matching this schema:
 {
-  "roleTitle": "${jobTitle.replace(/"/g, '\\"')}",
-  "companyName": "${companyName.replace(/"/g, '\\"')}",
+  "roleTitle": ${JSON.stringify(jobTitle)},
+  "companyName": ${JSON.stringify(companyName)},
   "tone": "${tone}",
-  "subjectLine": "Application for ${jobTitle.replace(/"/g, '\\"')} — ${candidateName}",
-  "salutation": "Dear Hiring Team at ${companyName.replace(/"/g, '\\"')},",
+  "subjectLine": ${JSON.stringify(`Application for ${jobTitle} — ${candidateName}`)},
+  "salutation": ${JSON.stringify(`Dear Hiring Team at ${companyName},`)},
   "hookParagraph": "Opening hook...",
   "bodyParagraphs": [
     "First achievement paragraph citing resume metrics...",
