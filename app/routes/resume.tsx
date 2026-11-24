@@ -5,6 +5,7 @@ import Icon from "~/components/ui/Icon";
 import { usePuterStore } from "~/services/puter/store";
 import { safeJsonParse } from "~/utils/json";
 import ScoreBadge from "~/components/ui/ScoreBadge";
+import { exportEvaluationReport } from "~/utils/exportReport";
 import PdfPreviewer from "~/features/resume-workspace/PdfPreviewer";
 import WorkspaceTabs from "~/features/resume-workspace/WorkspaceTabs";
 import OverviewTab from "~/features/resume-workspace/OverviewTab";
@@ -339,6 +340,11 @@ const ResumeWorkspaceContent = () => {
         });
     }, [persistResume]);
 
+    const handleExportReport = useCallback(() => {
+        if (!resume) return;
+        exportEvaluationReport(resume);
+    }, [resume]);
+
     if (notFound) {
         return (
             <main className="flex min-h-screen items-center justify-center bg-paper px-5 py-16">
@@ -390,13 +396,13 @@ const ResumeWorkspaceContent = () => {
                     <div className="flex min-w-0 items-center gap-3">
                         <Link
                             to="/dashboard"
-                            className="inline-flex shrink-0 items-center gap-1.5 border border-rule bg-surface px-2.5 py-2 text-[11px] font-semibold text-ink-2 transition-colors hover:border-rule-strong hover:text-ink"
+                            className="no-print inline-flex shrink-0 items-center gap-1.5 border border-rule bg-surface px-2.5 py-2 text-[11px] font-semibold text-ink-2 transition-colors hover:border-rule-strong hover:text-ink"
                         >
                             <Icon name="arrow-left" size={13} />
                             <span className="hidden sm:inline">Dashboard</span>
                         </Link>
 
-                        <span className="hidden h-4 w-px bg-rule sm:block" />
+                        <span className="no-print hidden h-4 w-px bg-rule sm:block" />
 
                         <div className="flex min-w-0 flex-col">
                             <span className="truncate text-[13px] font-semibold tracking-[-0.01em] text-ink">
@@ -416,22 +422,32 @@ const ResumeWorkspaceContent = () => {
 
                     <div className="flex shrink-0 items-center gap-2.5">
                         {saveError ? (
-                            <span className="hidden items-center gap-1.5 text-[10px] text-red-700 sm:inline-flex">
+                            <span className="no-print hidden items-center gap-1.5 text-[10px] text-red-700 sm:inline-flex">
                                 <span className="h-1.5 w-1.5 rounded-full bg-red-600" />
                                 Unsaved changes
                             </span>
                         ) : (
-                            <span className="hidden items-center gap-1.5 text-[10px] text-ink-4 sm:inline-flex">
+                            <span className="no-print hidden items-center gap-1.5 text-[10px] text-ink-4 sm:inline-flex">
                                 <span className="h-1.5 w-1.5 rounded-full bg-forest" />
                                 Cloud saved
                             </span>
                         )}
                         <ScoreBadge score={overallScore} variant="score" />
+                        <button
+                            type="button"
+                            onClick={handleExportReport}
+                            className="no-print inline-flex cursor-pointer items-center gap-1.5 border border-rule bg-surface px-3 py-2 text-[11px] font-semibold text-ink-2 transition-colors hover:border-rule-strong hover:text-ink"
+                            title="Export complete ATS diagnostic report as Markdown"
+                            aria-label="Export Evaluation Report"
+                        >
+                            <Icon name="files" size={14} />
+                            <span className="hidden sm:inline">Export Report</span>
+                        </button>
                         {resumeUrl && (
                             <a
                                 href={resumeUrl}
                                 download={resume.fileName || "resume.pdf"}
-                                className="inline-flex items-center gap-1.5 border border-rule bg-surface px-3 py-2 text-[11px] font-semibold text-ink-2 transition-colors hover:border-rule-strong hover:text-ink"
+                                className="no-print inline-flex items-center gap-1.5 border border-rule bg-surface px-3 py-2 text-[11px] font-semibold text-ink-2 transition-colors hover:border-rule-strong hover:text-ink"
                             >
                                 <Icon name="download" size={14} />
                                 <span className="hidden sm:inline">Download</span>
@@ -442,7 +458,7 @@ const ResumeWorkspaceContent = () => {
             </header>
 
             {saveError && (
-                <div className="mx-auto w-full max-w-[1920px] px-4 pt-4 sm:px-6 sm:pt-6">
+                <div className="no-print mx-auto w-full max-w-[1920px] px-4 pt-4 sm:px-6 sm:pt-6">
                     <div
                         role="alert"
                         className="flex items-start gap-2 border border-rule border-l-2 border-l-rust bg-red-50 px-3.5 py-2.5 text-[11px] leading-relaxed text-red-800"
@@ -457,7 +473,7 @@ const ResumeWorkspaceContent = () => {
             )}
 
             {/* Workspace navigation rail */}
-            <div className="mx-auto w-full max-w-[1920px] px-4 pt-4 sm:px-6 sm:pt-6">
+            <div className="no-print mx-auto w-full max-w-[1920px] px-4 pt-4 sm:px-6 sm:pt-6">
                 <WorkspaceTabs
                     activeTab={activeTab}
                     onTabChange={handleTabChange}

@@ -4,6 +4,7 @@ import { useSafeTimeout } from "~/hooks/useSafeTimeout";
 import { executeCopilotTurn } from "~/features/copilot/copilotEngine";
 import { generateUUID } from "~/utils/uuid";
 import Icon from "~/components/ui/Icon";
+import MarkdownMessage from "~/components/ui/MarkdownMessage";
 
 interface AICopilotTabProps {
     resumeId?: string;
@@ -343,10 +344,10 @@ Ask me anything about tailoring your bullets, bridging technical skill gaps, or 
                                             <span className="text-[9px] tabular-nums text-ink-4">{formattedTime}</span>
                                         )}
                                     </div>
-                                    <div className={`whitespace-pre-wrap px-3 py-2.5 text-[11.5px] leading-relaxed ${
-                                        msg.isError ? "text-red-800" : "text-ink-2"
+                                    <div className={`px-3 py-2.5 text-[11.5px] leading-relaxed ${
+                                        msg.isError ? "whitespace-pre-wrap text-red-800" : "text-ink-2"
                                     }`}>
-                                        {msg.content}
+                                        {msg.isError ? msg.content : <MarkdownMessage content={msg.content} />}
                                     </div>
 
                                     {/* Action Engine Bridge: suggestion CTAs */}

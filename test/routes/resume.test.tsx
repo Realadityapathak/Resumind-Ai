@@ -205,6 +205,28 @@ describe("Dual-Pane Resume Workspace Route (app/routes/resume.tsx)", () => {
         expect(await screen.findByText(/Resumind Interactive AI Copilot/i)).toBeInTheDocument();
     });
 
+    it("renders Export Report button and triggers markdown summary download", async () => {
+        const createObjectURLMock = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock-report");
+        const revokeObjectURLMock = vi.spyOn(URL, "revokeObjectURL");
+
+        render(
+            <MemoryRouter initialEntries={[`/resume/${mockResumeData.id}?tab=overview`]}>
+                <Routes>
+                    <Route path="/resume/:id" element={<ResumeWorkspace />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        const exportBtn = await screen.findByRole("button", { name: /Export Evaluation Report/i });
+        expect(exportBtn).toBeInTheDocument();
+
+        fireEvent.click(exportBtn);
+
+        expect(createObjectURLMock).toHaveBeenCalled();
+        createObjectURLMock.mockRestore();
+        revokeObjectURLMock.mockRestore();
+    });
+
     it("revokes created object URLs when workspace unmounts", async () => {
         const revokeSpy = vi.spyOn(URL, "revokeObjectURL");
 

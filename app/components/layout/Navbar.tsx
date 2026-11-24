@@ -3,10 +3,17 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { usePuterStore } from "~/services/puter/store";
 import Icon from "~/components/ui/Icon";
 
-export default function Navbar() {
+export interface NavbarProps {
+  variant?: "default" | "shell";
+  hideNavLinks?: boolean;
+}
+
+export default function Navbar({ variant = "default", hideNavLinks = false }: NavbarProps = {}) {
   const { auth, puterReady, isLoading } = usePuterStore();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const shouldHideNavLinks = hideNavLinks || variant === "shell";
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -70,7 +77,7 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-rule bg-paper">
+    <header className="no-print sticky top-0 z-40 w-full border-b border-rule bg-paper">
       <nav className="navbar transition-all">
         {/* Brand */}
         <Link to={isAuthenticated ? "/dashboard" : "/"} className="flex items-center gap-2 shrink-0 py-2.5 -my-2.5">
@@ -81,46 +88,48 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation Links */}
-        <div className="hidden md:flex items-center gap-7">
-          {isAuthenticated ? (
-            <>
-              <Link to="/dashboard" className={desktopLinkClass(location.pathname === "/dashboard")}>
-                Dashboard
-              </Link>
-              <Link
-                to="/workspace"
-                className={desktopLinkClass(
-                  location.pathname.startsWith("/workspace") || location.pathname.startsWith("/resume")
-                )}
-              >
-                AI Workspace
-              </Link>
-              <Link to="/profile" className={desktopLinkClass(location.pathname === "/profile")}>
-                Profile
-              </Link>
-            </>
-          ) : isHome ? (
-            marketingLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="nav-link-underline text-[13px] font-medium text-ink-3 transition-colors hover:text-ink"
-              >
-                {link.label}
-              </a>
-            ))
-          ) : (
-            marketingLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={`/${link.href}`}
-                className="nav-link-underline text-[13px] font-medium text-ink-3 transition-colors hover:text-ink"
-              >
-                {link.label}
-              </Link>
-            ))
-          )}
-        </div>
+        {!shouldHideNavLinks && (
+          <div className="hidden md:flex items-center gap-7">
+            {isAuthenticated ? (
+              <>
+                <Link to="/dashboard" className={desktopLinkClass(location.pathname === "/dashboard")}>
+                  Dashboard
+                </Link>
+                <Link
+                  to="/workspace"
+                  className={desktopLinkClass(
+                    location.pathname.startsWith("/workspace") || location.pathname.startsWith("/resume")
+                  )}
+                >
+                  AI Workspace
+                </Link>
+                <Link to="/profile" className={desktopLinkClass(location.pathname === "/profile")}>
+                  Profile
+                </Link>
+              </>
+            ) : isHome ? (
+              marketingLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="nav-link-underline text-[13px] font-medium text-ink-3 transition-colors hover:text-ink"
+                >
+                  {link.label}
+                </a>
+              ))
+            ) : (
+              marketingLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  to={`/${link.href}`}
+                  className="nav-link-underline text-[13px] font-medium text-ink-3 transition-colors hover:text-ink"
+                >
+                  {link.label}
+                </Link>
+              ))
+            )}
+          </div>
+        )}
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-2">

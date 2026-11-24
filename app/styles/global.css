@@ -17,7 +17,7 @@
   --color-ink: #171611;
   --color-ink-2: #444138;
   --color-ink-3: #6d685c;
-  --color-ink-4: #989183;
+  --color-ink-4: #706a5e;
   --color-rule: #d8d2c3;
   --color-rule-strong: #b8b09e;
   --color-cobalt: #1f3ecf;
@@ -105,7 +105,7 @@
   --color-slate-100: #ede9de;
   --color-slate-200: #e1dccd;
   --color-slate-300: #cfc8b7;
-  --color-slate-400: #989183;
+  --color-slate-400: #706a5e;
   --color-slate-500: #6d685c;
   --color-slate-600: #575248;
   --color-slate-700: #444138;
@@ -116,7 +116,7 @@
   --color-gray-100: #e8e3d7;
   --color-gray-200: #d8d2c3;
   --color-gray-300: #b8b09e;
-  --color-gray-400: #989183;
+  --color-gray-400: #706a5e;
   --color-gray-500: #6d685c;
   --color-gray-600: #575248;
   --color-gray-700: #444138;
@@ -708,8 +708,83 @@ a {
   aside,
   header,
   .no-print,
+  [role="tablist"],
   section[aria-label="Document Preview"] {
     display: none !important;
+  }
+
+  html,
+  body,
+  main {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #171611 !important;
+  }
+
+  main > div.mx-auto {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  section[aria-label="Resume Evaluation and Tools"],
+  section[aria-label="Resume Evaluation and Tools"] > div {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .border,
+  [role="tabpanel"] > div,
+  div[id="toneAndStyle"],
+  div[id="content"],
+  div[id="structure"],
+  div[id="skills"],
+  div[id="ATS"] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Interactive action buttons hidden in print, while keeping static accordion headers */
+  button:not([aria-expanded]) {
+    display: none !important;
+  }
+
+  button[aria-expanded] {
+    display: flex !important;
+    cursor: default !important;
+    background: transparent !important;
+  }
+
+  /* Hide accordion expand/collapse icon indicator in print */
+  button[aria-expanded] > span,
+  button[aria-expanded] span.inline-flex.rounded-full {
+    display: none !important;
+  }
+
+  /* Ensure all accordion diagnostic panels are fully expanded in print */
+  [role="tabpanel"] div[aria-hidden="true"],
+  [role="tabpanel"] .max-h-0 {
+    max-height: none !important;
+    opacity: 1 !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   #printable-cover-letter {

@@ -33,7 +33,14 @@ function DashboardContent() {
   // Deletion modal state
   const [resumeToDelete, setResumeToDelete] = useState<Resume | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const isDeletingRef = useRef(isDeleting);
+  isDeletingRef.current = isDeleting;
   const [toastMessage, setToastMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+
+  // Modal accessibility refs (WCAG 2.1 AA focus trap & restore)
+  const deleteTriggerRef = useRef<HTMLElement | null>(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement | null>(null);
 
   // Auto-dismiss toast
   useEffect(() => {
@@ -42,6 +49,66 @@ function DashboardContent() {
       return () => clearTimeout(timer);
     }
   }, [toastMessage]);
+
+  // Modal accessibility: Escape dismissal, focus trap, and restore focus to trigger
+  useEffect(() => {
+    if (!resumeToDelete) return;
+    const triggerElement = deleteTriggerRef.current || (document.activeElement as HTMLElement | null);
+
+    const focusTimer = setTimeout(() => {
+      cancelButtonRef.current?.focus();
+    }, 0);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (!isDeletingRef.current) {
+          e.preventDefault();
+          setResumeToDelete(null);
+        }
+        return;
+      }
+
+      if (e.key === "Tab") {
+        const modal = modalRef.current;
+        if (!modal) return;
+        const focusableElements = Array.from(
+          modal.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )
+        );
+        if (focusableElements.length === 0) return;
+
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === first || !modal.contains(document.activeElement)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last || !modal.contains(document.activeElement)) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      clearTimeout(focusTimer);
+      window.removeEventListener("keydown", handleKeyDown);
+      if (triggerElement && document.body.contains(triggerElement) && typeof triggerElement.focus === "function") {
+        triggerElement.focus();
+      } else {
+        const fallbackTarget = document.getElementById("search-input") || document.querySelector("main h1");
+        if (fallbackTarget && typeof (fallbackTarget as HTMLElement).focus === "function") {
+          (fallbackTarget as HTMLElement).focus();
+        }
+      }
+    };
+  }, [resumeToDelete]);
 
   // Load resumes from Puter KV
   useEffect(() => {
@@ -299,7 +366,7 @@ function DashboardContent() {
     <div className="flex min-h-screen bg-paper">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
-        <Navbar />
+        <Navbar variant="shell" />
 
         <main className="mx-auto w-full max-w-[1320px] flex-1 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
           {/* Toast Notification */}
@@ -650,7 +717,10 @@ function DashboardContent() {
                           )}
                           <button
                             type="button"
-                            onClick={() => setResumeToDelete(resume)}
+                            onClick={(e) => {
+                              deleteTriggerRef.current = e.currentTarget;
+                              setResumeToDelete(resume);
+                            }}
                             data-testid={`delete-btn-${resume.id}`}
                             className="flex min-h-[36px] min-w-[36px] cursor-pointer items-center justify-center border border-transparent text-ink-4 transition-colors hover:border-rule hover:text-rust"
                             title="Delete Evaluation"
@@ -745,7 +815,10 @@ function DashboardContent() {
                                 )}
                                 <button
                                   type="button"
-                                  onClick={() => setResumeToDelete(resume)}
+                                  onClick={(e) => {
+                                    deleteTriggerRef.current = e.currentTarget;
+                                    setResumeToDelete(resume);
+                                  }}
                                   data-testid={`delete-btn-${resume.id}`}
                                   className="flex min-h-[36px] min-w-[36px] cursor-pointer items-center justify-center border border-transparent text-ink-4 transition-colors hover:border-rule hover:text-rust"
                                   title="Delete Evaluation"
@@ -767,22 +840,34 @@ function DashboardContent() {
 
           {/* DELETE CONFIRMATION MODAL */}
           {resumeToDelete && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="delete-modal-title"
+              aria-describedby="delete-modal-description"
+            >
               <div
                 className="backdrop-in fixed inset-0 bg-ink/40 transition-opacity"
                 onClick={() => !isDeleting && setResumeToDelete(null)}
               />
-              <div className="relative z-10 w-full max-w-md animate-fadeIn border border-rule bg-paper p-6 sm:p-8">
+              <div
+                ref={modalRef}
+                className="relative z-10 w-full max-w-md animate-fadeIn border border-rule bg-paper p-6 sm:p-8"
+              >
                 <div className="flex items-center justify-between">
                   <span className="flex h-9 w-9 items-center justify-center border border-red-200 bg-red-50 text-rust">
                     <Icon name="trash" size={16} />
                   </span>
                   <span className="text-[10px] font-medium text-ink-4">Permanent action</span>
                 </div>
-                <h3 className="mt-6 text-[19px] font-semibold leading-snug tracking-[-0.02em] text-ink">
+                <h3
+                  id="delete-modal-title"
+                  className="mt-6 text-[19px] font-semibold leading-snug tracking-[-0.02em] text-ink"
+                >
                   Are you sure you want to delete this evaluation?
                 </h3>
-                <p className="mt-3 text-[12px] leading-[1.75] text-ink-3">
+                <p id="delete-modal-description" className="mt-3 text-[12px] leading-[1.75] text-ink-3">
                   This will permanently delete the evaluation for{" "}
                   <span className="font-semibold text-ink">
                     "{resumeToDelete.companyName || resumeToDelete.jobTitle || 'Resume'}"
@@ -791,6 +876,7 @@ function DashboardContent() {
                 </p>
                 <div className="mt-7 flex items-center justify-end gap-2 border-t border-rule pt-5">
                   <button
+                    ref={cancelButtonRef}
                     type="button"
                     disabled={isDeleting}
                     onClick={() => setResumeToDelete(null)}
