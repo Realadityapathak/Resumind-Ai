@@ -13,6 +13,7 @@ import "./styles/global.css";
 import { useEffect } from "react";
 
 import { usePuterStore } from "~/services/puter/store";
+import { telemetry } from "~/services/telemetry";
 import Icon from "~/components/ui/Icon";
 
 export const links: Route.LinksFunction = () => [
@@ -40,6 +41,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          httpEquiv="Content-Security-Policy"
+          content="default-src 'self' blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://js.puter.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' blob: https://js.puter.com https://puter.com https://*.puter.com https://api.puter.com; frame-src 'self' https://js.puter.com https://puter.com https://*.puter.com; worker-src 'self' blob:;"
+        />
         <Meta />
         <Links />
         {/* Gate load/reveal motion on JS so the page is never hidden without it. */}
@@ -97,6 +102,15 @@ export function ErrorBoundary({ error }: { error: unknown; params?: Record<strin
       statusBadge = (error as any).name;
     }
   }
+
+  useEffect(() => {
+    telemetry.trackError(error, {
+      boundary: "RootErrorBoundary",
+      statusBadge,
+      message,
+      details,
+    });
+  }, [error, statusBadge, message, details]);
 
   const handleReload = () => {
     if (typeof window !== "undefined") {

@@ -1,4 +1,4 @@
-import React, { type FC, type ReactNode } from "react";
+import type { FC, ReactNode } from "react";
 
 export interface MarkdownMessageProps {
   content: string;

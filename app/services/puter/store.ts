@@ -25,7 +25,7 @@ declare global {
                     imageURL?: string | PuterChatOptions,
                     testMode?: boolean,
                     options?: PuterChatOptions
-                ) => Promise<Object>;
+                ) => Promise<unknown>;
                 img2txt: (
                     image: string | File | Blob,
                     testMode?: boolean

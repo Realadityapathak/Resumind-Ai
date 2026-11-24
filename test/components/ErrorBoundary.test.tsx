@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { ErrorBoundary } from "~/root";
+import { telemetry } from "~/services/telemetry";
 
 describe("ErrorBoundary Component (app/root.tsx)", () => {
   const originalLocation = window.location;
@@ -132,5 +133,26 @@ describe("ErrorBoundary Component (app/root.tsx)", () => {
     fireEvent.click(reloadBtn);
 
     expect(window.location.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports errors to telemetry with sanitized metadata upon mount", () => {
+    const trackErrorSpy = vi.spyOn(telemetry, "trackError");
+    const testError = new Error("Database timeout error");
+
+    render(
+      <MemoryRouter>
+        <ErrorBoundary error={testError} params={{}} />
+      </MemoryRouter>
+    );
+
+    expect(trackErrorSpy).toHaveBeenCalledWith(
+      testError,
+      expect.objectContaining({
+        boundary: "RootErrorBoundary",
+        statusBadge: "Error",
+        message: "Something Went Wrong",
+        details: "Database timeout error",
+      })
+    );
   });
 });

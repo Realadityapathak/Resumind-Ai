@@ -47,7 +47,7 @@ export const StarRewriterTab: FC<StarRewriterTabProps> = ({
         for (const line of lines) {
             const trimmed = line.trim();
             // Match bullet symbols or typical experience lines
-            const match = trimmed.match(/^[\u2022\u25E6\u2023\u2219\*\-–—]\s*(.{15,})$/);
+            const match = trimmed.match(/^[\u2022\u25E6\u2023\u2219*\-–—]\s*(.{15,})$/);
             if (match && match[1]) {
                 bullets.push(match[1].trim());
             } else if (

@@ -6,6 +6,7 @@ import Sidebar from "~/components/layout/Sidebar";
 import Icon, { type IconName } from "~/components/ui/Icon";
 import { usePuterStore } from "~/services/puter/store";
 import { safeJsonParse } from "~/utils/json";
+import { telemetry } from "~/services/telemetry";
 
 export const meta = () => [
   { title: "AI Workspace | Resumind" },
@@ -43,6 +44,7 @@ function WorkspaceContent() {
   const { kv } = usePuterStore();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -76,6 +78,7 @@ function WorkspaceContent() {
         }
       } catch (err) {
         console.error("Failed to load resumes in workspace:", err);
+        telemetry.trackError(err, { context: "workspace_load_resumes" });
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -131,7 +134,7 @@ function WorkspaceContent() {
 
           {/* Active resumes */}
           <section className="mt-8 border border-rule bg-surface">
-            <div className="flex flex-col gap-3 border-b border-rule px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 border-b border-rule px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-[17px] font-semibold tracking-[-0.02em] text-ink">
                   Active Evaluated Resumes
@@ -140,13 +143,38 @@ function WorkspaceContent() {
                   Select any resume to open detailed analysis and AI tools.
                 </p>
               </div>
-              <Link
-                to="/dashboard"
-                className="inline-flex w-fit items-center gap-1.5 text-[12px] font-semibold text-cobalt transition-colors hover:text-cobalt-deep"
-              >
-                View All on Dashboard
-                <Icon name="arrow-right" size={14} />
-              </Link>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="relative min-w-[220px]">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by role, company, or file..."
+                    aria-label="Search workspace resumes"
+                    className="w-full rounded-[3px] border border-rule bg-paper px-3 py-1.5 pl-8 pr-7 text-[12px] text-ink placeholder:text-ink-4 focus:border-cobalt focus:outline-none"
+                  />
+                  <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-4">
+                    <Icon name="search" size={13} />
+                  </span>
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      aria-label="Clear search"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-4 hover:text-ink cursor-pointer"
+                    >
+                      <Icon name="close" size={12} />
+                    </button>
+                  )}
+                </div>
+                <Link
+                  to="/dashboard"
+                  className="inline-flex w-fit items-center gap-1.5 text-[12px] font-semibold text-cobalt transition-colors hover:text-cobalt-deep"
+                >
+                  View All on Dashboard
+                  <Icon name="arrow-right" size={14} />
+                </Link>
+              </div>
             </div>
 
             {loading ? (
@@ -171,53 +199,86 @@ function WorkspaceContent() {
                 </div>
               </div>
             ) : (
-              <div className="divide-y divide-rule">
-                {resumes.map((resume) => {
-                  const score = resume.feedback?.overallScore ?? 0;
+              (() => {
+                const query = searchQuery.trim().toLowerCase();
+                const filtered = resumes.filter((resume) => {
+                  if (!query) return true;
+                  const title = (resume.jobTitle || "").toLowerCase();
+                  const company = (resume.companyName || "").toLowerCase();
+                  const filename = (resume.fileName || "").toLowerCase();
+                  return title.includes(query) || company.includes(query) || filename.includes(query);
+                });
+
+                if (filtered.length === 0) {
                   return (
-                    <Link
-                      key={resume.id}
-                      to={`/resume/${resume.id}`}
-                      state={{ initialResume: resume }}
-                      className="group grid grid-cols-1 gap-3 px-5 py-4 transition-colors hover:bg-white sm:grid-cols-[1fr_1fr_auto_auto] sm:items-center sm:gap-6"
-                    >
-                      <div className="min-w-0">
-                        <p className="text-[10px] font-medium text-ink-4">
-                          {resume.createdAt ? new Date(resume.createdAt).toLocaleDateString() : "Saved"}
-                        </p>
-                        <h3 className="mt-1 truncate text-[14px] font-semibold text-ink transition-colors group-hover:text-cobalt">
-                          {resume.jobTitle || resume.fileName || "Uploaded Resume"}
-                        </h3>
-                      </div>
-
-                      <p className="truncate text-[12px] text-ink-3">
-                        {resume.companyName || "General Application"}
+                    <div className="px-6 py-14 text-center">
+                      <p className="text-[14px] font-semibold text-ink">
+                        No resumes match "{searchQuery}"
                       </p>
-
-                      <span
-                        className={`w-fit border px-2 py-0.5 text-[11px] font-semibold tabular-nums ${
-                          score > 70
-                            ? "border-green-200 bg-green-50 text-green-700"
-                            : score >= 50
-                            ? "border-yellow-200 bg-yellow-50 text-yellow-700"
-                            : "border-red-200 bg-red-50 text-red-700"
-                        }`}
+                      <p className="mt-1 text-[12px] text-ink-3">
+                        Try adjusting your keywords or clearing the search filter.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery("")}
+                        className="secondary-button mt-4 !px-3 !py-1.5 text-[12px]"
                       >
-                        {score}/100
-                      </span>
-
-                      <span className="inline-flex items-center justify-between gap-2 text-[12px] font-semibold text-cobalt sm:justify-end">
-                        Launch Studio
-                        <Icon
-                          name="arrow-right"
-                          size={14}
-                          className="transition-transform group-hover:translate-x-0.5"
-                        />
-                      </span>
-                    </Link>
+                        Clear filter
+                      </button>
+                    </div>
                   );
-                })}
-              </div>
+                }
+
+                return (
+                  <div className="divide-y divide-rule">
+                    {filtered.map((resume) => {
+                      const score = resume.feedback?.overallScore ?? 0;
+                      return (
+                        <Link
+                          key={resume.id}
+                          to={`/resume/${resume.id}`}
+                          state={{ initialResume: resume }}
+                          className="group grid grid-cols-1 gap-3 px-5 py-4 transition-colors hover:bg-white sm:grid-cols-[1fr_1fr_auto_auto] sm:items-center sm:gap-6"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-[10px] font-medium text-ink-4">
+                              {resume.createdAt ? new Date(resume.createdAt).toLocaleDateString() : "Saved"}
+                            </p>
+                            <h3 className="mt-1 truncate text-[14px] font-semibold text-ink transition-colors group-hover:text-cobalt">
+                              {resume.jobTitle || resume.fileName || "Uploaded Resume"}
+                            </h3>
+                          </div>
+
+                          <p className="truncate text-[12px] text-ink-3">
+                            {resume.companyName || "General Application"}
+                          </p>
+
+                          <span
+                            className={`w-fit border px-2 py-0.5 text-[11px] font-semibold tabular-nums ${
+                              score > 70
+                                ? "border-green-200 bg-green-50 text-green-700"
+                                : score >= 50
+                                ? "border-yellow-200 bg-yellow-50 text-yellow-700"
+                                : "border-red-200 bg-red-50 text-red-700"
+                            }`}
+                          >
+                            {score}/100
+                          </span>
+
+                          <span className="inline-flex items-center justify-between gap-2 text-[12px] font-semibold text-cobalt sm:justify-end">
+                            Launch Studio
+                            <Icon
+                              name="arrow-right"
+                              size={14}
+                              className="transition-transform group-hover:translate-x-0.5"
+                            />
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                );
+              })()
             )}
           </section>
 

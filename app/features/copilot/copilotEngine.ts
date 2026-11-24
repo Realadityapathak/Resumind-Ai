@@ -56,7 +56,7 @@ export async function executeCopilotTurn(
     const cleaned = cleanJson(rawText);
     const parsed = safeJsonParse<unknown>(cleaned, null);
 
-    let reply = "";
+    let reply: string;
     let actionSuggestions: CopilotActionSuggestion[] = [];
 
     if (parsed && validateCopilotResponse(parsed)) {

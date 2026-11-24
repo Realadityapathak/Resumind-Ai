@@ -5,7 +5,7 @@ import MarkdownMessage, { parseInlineMarkdown } from "~/components/ui/MarkdownMe
 describe("MarkdownMessage Component (app/components/ui/MarkdownMessage.tsx)", () => {
     it("renders headings at appropriate levels (h1, h2, h3, h4)", () => {
         const md = `# Title\n## Subtitle\n### Section\n#### Sub-section`;
-        const { container } = render(<MarkdownMessage content={md} />);
+        render(<MarkdownMessage content={md} />);
 
         expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Title");
         expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Subtitle");
@@ -144,7 +144,7 @@ describe("MarkdownMessage Component (app/components/ui/MarkdownMessage.tsx)", ()
         });
 
         it("renders h5 and h6 headings", () => {
-            const { container } = render(
+            render(
                 <MarkdownMessage content={"##### Small heading 5\n###### Tiny heading 6"} />
             );
             expect(screen.getByRole("heading", { level: 5 })).toHaveTextContent("Small heading 5");

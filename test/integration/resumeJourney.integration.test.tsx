@@ -173,8 +173,6 @@ describe("Tier 4: Comprehensive Opaque-Box E2E SaaS Workflow Integration Suite",
     // =========================================================================
     // STAGE 2: Resume Upload & AI Analysis Pipeline
     // =========================================================================
-    let generatedResumeId: string;
-
     const { container: uploadContainer, unmount: unmountUpload } = render(
       <MemoryRouter initialEntries={["/upload"]}>
         <Routes>
@@ -227,7 +225,7 @@ describe("Tier 4: Comprehensive Opaque-Box E2E SaaS Workflow Integration Suite",
     // Verify KV persistence occurred
     const allKvKeys = await puterMock.kv.list("resume:*", false);
     expect(allKvKeys.length).toBe(1);
-    generatedResumeId = (allKvKeys[0] as string).replace("resume:", "");
+    const generatedResumeId = (allKvKeys[0] as string).replace("resume:", "");
     expect(generatedResumeId.length).toBeGreaterThan(0);
 
     // Verify atomic KV record schema
