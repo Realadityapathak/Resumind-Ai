@@ -8,9 +8,8 @@
 
 <br />
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-resumind.app-0284c7?style=for-the-badge&logo=google-chrome&logoColor=white)](http://localhost:5173/)
-[![GitHub Stars](https://img.shields.io/github/stars/Realadityapathak/AI-Resume-Analyzer?style=for-the-badge&logo=github&color=f59e0b)](https://github.com/Realadityapathak/AI-Resume-Analyzer/stargazers)
-[![License: MIT](https://img.shields.io/badge/License-MIT-emerald?style=for-the-badge)](LICENSE)
+[![Live App](https://img.shields.io/badge/Live_App-resumind--cv.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://resumind-cv.vercel.app/)
+[![GitHub Stars](https://img.shields.io/github/stars/Realadityapathak/Resumind-Ai?style=for-the-badge&logo=github&color=f59e0b)](https://github.com/Realadityapathak/Resumind-Ai/stargazers)
 
 <br />
 
@@ -26,7 +25,7 @@
 <br />
 
 ```
-[ 🚀 Explore Demo ](http://localhost:5173/)  •  [ 📖 Architecture Guide ](docs/ARCHITECTURE.md)  •  [ 🐛 Report Bug ](https://github.com/Realadityapathak/AI-Resume-Analyzer/issues)  •  [ 💡 Request Feature ](https://github.com/Realadityapathak/AI-Resume-Analyzer/issues)
+[ 🚀 Launch Live App ](https://resumind-cv.vercel.app/)  •  [ 📖 Architecture Guide ](docs/ARCHITECTURE.md)  •  [ 🐛 Report Bug ](https://github.com/Realadityapathak/Resumind-Ai/issues)  •  [ 💡 Request Feature ](https://github.com/Realadityapathak/Resumind-Ai/issues)
 ```
 
 <br />
@@ -70,7 +69,6 @@
 - [Quality Assurance & Testing](#-quality-assurance--testing)
 - [Engineering Roadmap](#-engineering-roadmap)
 - [Contributing](#-contributing)
-- [License](#-license)
 - [Acknowledgements](#-acknowledgements)
 
 ---
@@ -498,12 +496,6 @@ We welcome contributions from the engineering community! To contribute:
    git push origin feat/amazing-enhancement
    ```
 6. **Open a Pull Request with a clear description of your changes.**
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for complete details.
 
 ---
 
